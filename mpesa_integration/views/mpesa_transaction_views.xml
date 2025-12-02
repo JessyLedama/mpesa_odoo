@@ -1,0 +1,194 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- M-Pesa Transaction Form View -->
+    <record id="view_mpesa_transaction_form" model="ir.ui.view">
+        <field name="name">mpesa.transaction.form</field>
+        <field name="model">mpesa.transaction</field>
+        <field name="arch" type="xml">
+            <form string="M-Pesa Transaction" create="false">
+                <header>
+                    <button name="action_retry_reconcile" string="Retry Reconciliation" type="object"
+                            class="btn-primary" invisible="state != 'completed'"/>
+                    <button name="action_reconcile_manually" string="Manual Reconciliation" type="object"
+                            class="btn-secondary" invisible="state != 'completed'"/>
+                    <field name="state" widget="statusbar" statusbar_visible="pending,completed,reconciled"/>
+                </header>
+                <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <button name="action_view_invoice" type="object" class="oe_stat_button" icon="fa-file-text-o"
+                                invisible="not invoice_id">
+                            <span class="o_stat_text">Invoice</span>
+                        </button>
+                        <button name="action_view_payment" type="object" class="oe_stat_button" icon="fa-money"
+                                invisible="not payment_id">
+                            <span class="o_stat_text">Payment</span>
+                        </button>
+                    </div>
+                    <div class="oe_title">
+                        <h1>
+                            <field name="transaction_id" readonly="1" placeholder="Transaction ID"/>
+                        </h1>
+                    </div>
+                    <group>
+                        <group string="Transaction Details">
+                            <field name="transaction_type"/>
+                            <field name="amount"/>
+                            <field name="phone_number"/>
+                            <field name="transaction_time"/>
+                        </group>
+                        <group string="Reference">
+                            <field name="account_reference"/>
+                            <field name="bill_ref_number"/>
+                            <field name="description"/>
+                            <field name="config_id"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Customer Details" name="customer">
+                            <group>
+                                <group>
+                                    <field name="first_name"/>
+                                    <field name="middle_name"/>
+                                    <field name="last_name"/>
+                                </group>
+                                <group>
+                                    <field name="msisdn"/>
+                                </group>
+                            </group>
+                        </page>
+                        <page string="Reconciliation" name="reconciliation">
+                            <group>
+                                <group>
+                                    <field name="invoice_id"/>
+                                    <field name="payment_id"/>
+                                    <field name="is_reconciled"/>
+                                </group>
+                                <group>
+                                    <field name="company_id" groups="base.group_multi_company"/>
+                                </group>
+                            </group>
+                        </page>
+                        <page string="Technical Details" name="technical">
+                            <group>
+                                <group string="Request IDs">
+                                    <field name="merchant_request_id"/>
+                                    <field name="checkout_request_id"/>
+                                    <field name="conversation_id"/>
+                                    <field name="originator_conversation_id"/>
+                                </group>
+                                <group string="Response">
+                                    <field name="response_code"/>
+                                    <field name="response_description"/>
+                                    <field name="result_code"/>
+                                    <field name="result_description"/>
+                                </group>
+                            </group>
+                            <group string="Raw Data" groups="base.group_no_one">
+                                <field name="raw_request" readonly="1"/>
+                                <field name="raw_response" readonly="1"/>
+                                <field name="callback_data" readonly="1"/>
+                            </group>
+                        </page>
+                    </notebook>
+                </sheet>
+                <div class="oe_chatter">
+                    <field name="message_follower_ids" groups="base.group_user"/>
+                    <field name="message_ids"/>
+                </div>
+            </form>
+        </field>
+    </record>
+
+    <!-- M-Pesa Transaction Tree View -->
+    <record id="view_mpesa_transaction_tree" model="ir.ui.view">
+        <field name="name">mpesa.transaction.tree</field>
+        <field name="model">mpesa.transaction</field>
+        <field name="arch" type="xml">
+            <tree string="M-Pesa Transactions" create="false" decoration-success="state == 'completed' or state == 'reconciled'" decoration-danger="state == 'failed'" decoration-warning="state == 'pending'" decoration-muted="state == 'cancelled'">
+                <field name="transaction_id"/>
+                <field name="transaction_type"/>
+                <field name="phone_number"/>
+                <field name="amount" sum="Total Amount"/>
+                <field name="account_reference"/>
+                <field name="transaction_time"/>
+                <field name="state" widget="badge"
+                       decoration-success="state == 'completed' or state == 'reconciled'"
+                       decoration-danger="state == 'failed'"
+                       decoration-warning="state == 'pending'"
+                       decoration-info="state == 'cancelled'"/>
+                <field name="is_reconciled"/>
+                <field name="invoice_id" optional="show"/>
+            </tree>
+        </field>
+    </record>
+
+    <!-- M-Pesa Transaction Search View -->
+    <record id="view_mpesa_transaction_search" model="ir.ui.view">
+        <field name="name">mpesa.transaction.search</field>
+        <field name="model">mpesa.transaction</field>
+        <field name="arch" type="xml">
+            <search string="M-Pesa Transactions">
+                <field name="transaction_id"/>
+                <field name="phone_number"/>
+                <field name="account_reference"/>
+                <field name="bill_ref_number"/>
+                <separator/>
+                <filter string="Pending" name="pending" domain="[('state', '=', 'pending')]"/>
+                <filter string="Completed" name="completed" domain="[('state', '=', 'completed')]"/>
+                <filter string="Reconciled" name="reconciled" domain="[('state', '=', 'reconciled')]"/>
+                <filter string="Failed" name="failed" domain="[('state', '=', 'failed')]"/>
+                <separator/>
+                <filter string="Not Reconciled" name="not_reconciled"
+                        domain="[('state', '=', 'completed'), ('is_reconciled', '=', False)]"/>
+                <separator/>
+                <filter string="C2B" name="c2b" domain="[('transaction_type', '=', 'c2b')]"/>
+                <filter string="STK Push" name="stk_push" domain="[('transaction_type', '=', 'stk_push')]"/>
+                <separator/>
+                <filter string="Today" name="today" domain="[('transaction_time', '>=', context_today().strftime('%Y-%m-%d'))]"/>
+                <filter string="This Week" name="this_week" domain="[('transaction_time', '>=', (context_today() - relativedelta(days=7)).strftime('%Y-%m-%d'))]"/>
+                <filter string="This Month" name="this_month" domain="[('transaction_time', '>=', context_today().strftime('%Y-%m-01'))]"/>
+                <group expand="0" string="Group By">
+                    <filter string="Status" name="group_state" context="{'group_by': 'state'}"/>
+                    <filter string="Type" name="group_type" context="{'group_by': 'transaction_type'}"/>
+                    <filter string="Date" name="group_date" context="{'group_by': 'transaction_time:day'}"/>
+                    <filter string="Invoice" name="group_invoice" context="{'group_by': 'invoice_id'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- M-Pesa Transaction Action -->
+    <record id="action_mpesa_transaction" model="ir.actions.act_window">
+        <field name="name">M-Pesa Transactions</field>
+        <field name="res_model">mpesa.transaction</field>
+        <field name="view_mode">tree,form</field>
+        <field name="search_view_id" ref="view_mpesa_transaction_search"/>
+        <field name="context">{'search_default_not_reconciled': 1}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                No M-Pesa transactions yet
+            </p>
+            <p>
+                M-Pesa transactions will appear here when customers make payments.
+            </p>
+        </field>
+    </record>
+
+    <!-- All Transactions Action (no default filter) -->
+    <record id="action_mpesa_transaction_all" model="ir.actions.act_window">
+        <field name="name">All Transactions</field>
+        <field name="res_model">mpesa.transaction</field>
+        <field name="view_mode">tree,form</field>
+        <field name="search_view_id" ref="view_mpesa_transaction_search"/>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                No M-Pesa transactions yet
+            </p>
+            <p>
+                M-Pesa transactions will appear here when customers make payments.
+            </p>
+        </field>
+    </record>
+
+</odoo>
