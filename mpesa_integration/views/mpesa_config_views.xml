@@ -1,0 +1,149 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- M-Pesa Configuration Form View -->
+    <record id="view_mpesa_config_form" model="ir.ui.view">
+        <field name="name">mpesa.config.form</field>
+        <field name="model">mpesa.config</field>
+        <field name="arch" type="xml">
+            <form string="M-Pesa Configuration">
+                <header>
+                    <button name="action_test_connection" string="Test Connection" type="object" class="btn-primary"/>
+                    <button name="action_register_urls" string="Register URLs" type="object" class="btn-secondary"/>
+                </header>
+                <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <button name="action_view_transactions" type="object" class="oe_stat_button" icon="fa-exchange">
+                            <field name="transaction_count" widget="statinfo" string="Transactions"/>
+                        </button>
+                    </div>
+                    <widget name="web_ribbon" title="Archived" bg_color="bg-danger" invisible="active"/>
+                    <div class="oe_title">
+                        <h1>
+                            <field name="name" placeholder="Configuration Name"/>
+                        </h1>
+                    </div>
+                    <group>
+                        <group string="General Settings">
+                            <field name="active" invisible="1"/>
+                            <field name="company_id" groups="base.group_multi_company"/>
+                            <field name="environment" widget="radio"/>
+                            <field name="default_journal_id"/>
+                        </group>
+                        <group string="Business Details">
+                            <field name="shortcode"/>
+                            <field name="business_name"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="API Credentials" name="credentials">
+                            <group>
+                                <group string="OAuth Credentials">
+                                    <field name="consumer_key" password="True"/>
+                                    <field name="consumer_secret" password="True"/>
+                                </group>
+                                <group string="Lipa Na M-Pesa">
+                                    <field name="passkey" password="True"/>
+                                </group>
+                            </group>
+                            <group>
+                                <group string="Initiator Credentials (Optional)">
+                                    <field name="initiator_name"/>
+                                    <field name="security_credential" password="True"/>
+                                </group>
+                                <group string="Token Info (Auto-generated)">
+                                    <field name="access_token" readonly="1"/>
+                                    <field name="token_expiry" readonly="1"/>
+                                </group>
+                            </group>
+                        </page>
+                        <page string="Callback URLs" name="urls">
+                            <group>
+                                <group string="STK Push">
+                                    <field name="callback_url" widget="url"/>
+                                </group>
+                                <group string="C2B URLs">
+                                    <field name="validation_url" widget="url"/>
+                                    <field name="confirmation_url" widget="url"/>
+                                </group>
+                            </group>
+                            <group>
+                                <group string="Other URLs">
+                                    <field name="timeout_url" widget="url"/>
+                                    <field name="result_url" widget="url"/>
+                                </group>
+                            </group>
+                            <div class="alert alert-info" role="alert">
+                                <strong>Callback URL Format:</strong><br/>
+                                <ul>
+                                    <li>STK Push Callback: <code>https://yourdomain.com/mpesa/stkpush/callback</code></li>
+                                    <li>C2B Validation: <code>https://yourdomain.com/mpesa/c2b/validation</code></li>
+                                    <li>C2B Confirmation: <code>https://yourdomain.com/mpesa/c2b/confirmation</code></li>
+                                    <li>Timeout: <code>https://yourdomain.com/mpesa/timeout</code></li>
+                                    <li>Result: <code>https://yourdomain.com/mpesa/result</code></li>
+                                </ul>
+                                <p>Replace <code>yourdomain.com</code> with your Odoo server's public URL.</p>
+                            </div>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- M-Pesa Configuration Tree View -->
+    <record id="view_mpesa_config_tree" model="ir.ui.view">
+        <field name="name">mpesa.config.tree</field>
+        <field name="model">mpesa.config</field>
+        <field name="arch" type="xml">
+            <tree string="M-Pesa Configurations">
+                <field name="name"/>
+                <field name="shortcode"/>
+                <field name="environment" widget="badge"
+                       decoration-success="environment == 'production'"
+                       decoration-info="environment == 'sandbox'"/>
+                <field name="company_id" groups="base.group_multi_company"/>
+                <field name="transaction_count"/>
+                <field name="active" invisible="1"/>
+            </tree>
+        </field>
+    </record>
+
+    <!-- M-Pesa Configuration Search View -->
+    <record id="view_mpesa_config_search" model="ir.ui.view">
+        <field name="name">mpesa.config.search</field>
+        <field name="model">mpesa.config</field>
+        <field name="arch" type="xml">
+            <search string="M-Pesa Configuration">
+                <field name="name"/>
+                <field name="shortcode"/>
+                <filter string="Production" name="production" domain="[('environment', '=', 'production')]"/>
+                <filter string="Sandbox" name="sandbox" domain="[('environment', '=', 'sandbox')]"/>
+                <separator/>
+                <filter string="Archived" name="inactive" domain="[('active', '=', False)]"/>
+                <group expand="0" string="Group By">
+                    <filter string="Environment" name="group_environment" context="{'group_by': 'environment'}"/>
+                    <filter string="Company" name="group_company" context="{'group_by': 'company_id'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- M-Pesa Configuration Action -->
+    <record id="action_mpesa_config" model="ir.actions.act_window">
+        <field name="name">M-Pesa Configuration</field>
+        <field name="res_model">mpesa.config</field>
+        <field name="view_mode">tree,form</field>
+        <field name="search_view_id" ref="view_mpesa_config_search"/>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Configure your M-Pesa Daraja API settings
+            </p>
+            <p>
+                Add your M-Pesa API credentials to start accepting payments.
+                You can get your credentials from the Safaricom Daraja portal.
+            </p>
+        </field>
+    </record>
+
+</odoo>
