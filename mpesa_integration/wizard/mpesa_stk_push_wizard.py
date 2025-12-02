@@ -77,14 +77,10 @@ class MpesaStkPushWizard(models.TransientModel):
         if result.get('success'):
             message = result.get('message', 'STK Push sent successfully!')
             return {
-                'type': 'ir.actions.client',
-                'tag': 'display_notification',
-                'params': {
-                    'title': 'Success',
+                'effect': {
+                    'fadeout': 'slow',
                     'message': message,
-                    'type': 'success',
-                    'sticky': False,
-                    'next': {'type': 'ir.actions.act_window_close'}
+                    'type': 'rainbow_man',
                 }
             }
         else:

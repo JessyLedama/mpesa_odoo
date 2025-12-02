@@ -94,7 +94,9 @@ class MpesaTransaction(models.Model):
             elif record.checkout_request_id:
                 record.display_name = record.checkout_request_id[:20]
             else:
-                record.display_name = f'{record.transaction_type.upper()} - {record.id}'
+                type_label = record.transaction_type.upper() if record.transaction_type else 'MPESA'
+                record_id = record.id if record.id else 'New'
+                record.display_name = f'{type_label} - {record_id}'
     
     def process_stk_callback(self, callback_data):
         """Process STK Push callback from Safaricom"""
@@ -184,13 +186,19 @@ class MpesaTransaction(models.Model):
             _logger.warning(f'No active config found for shortcode: {shortcode}')
             return False
         
-        # Parse transaction time
+        # Parse transaction time (M-Pesa format: YYYYMMDDHHmmss)
         trans_date = None
         if trans_time:
-            try:
-                trans_date = datetime.strptime(str(trans_time), '%Y%m%d%H%M%S')
-            except Exception:
+            trans_time_str = str(trans_time)
+            for fmt in ['%Y%m%d%H%M%S', '%Y-%m-%d %H:%M:%S', '%Y%m%d']:
+                try:
+                    trans_date = datetime.strptime(trans_time_str, fmt)
+                    break
+                except ValueError:
+                    continue
+            if trans_date is None:
                 trans_date = datetime.now()
+                _logger.warning(f'Could not parse M-Pesa transaction time: {trans_time}')
         
         # Create transaction record
         vals = {

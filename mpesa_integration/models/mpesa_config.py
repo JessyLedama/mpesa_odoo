@@ -122,10 +122,20 @@ class MpesaConfig(models.Model):
         help='Whether C2B URLs have been registered with Safaricom'
     )
     
-    _sql_constraints = [
-        ('unique_company_config', 'unique(company_id, active)',
-         'There can only be one active M-Pesa configuration per company!')
-    ]
+    @api.constrains('company_id', 'active')
+    def _check_unique_active_config(self):
+        """Ensure only one active configuration per company"""
+        for record in self:
+            if record.active:
+                existing = self.search([
+                    ('company_id', '=', record.company_id.id),
+                    ('active', '=', True),
+                    ('id', '!=', record.id)
+                ])
+                if existing:
+                    raise ValidationError(
+                        'There can only be one active M-Pesa configuration per company!'
+                    )
     
     @api.depends('environment')
     def _compute_urls(self):
@@ -362,11 +372,18 @@ class MpesaConfig(models.Model):
             phone = '254' + phone[1:]
         elif phone.startswith('+254'):
             phone = phone[1:]
+        elif phone.startswith('+'):
+            # Remove leading + for other formats
+            phone = phone[1:]
         elif not phone.startswith('254'):
             phone = '254' + phone
         
-        if len(phone) != 12:
-            raise ValidationError('Invalid phone number format. Please enter a valid Kenyan phone number.')
+        # Validate Kenyan phone number format (254XXXXXXXXX - 12 digits)
+        if not phone.startswith('254') or len(phone) != 12 or not phone.isdigit():
+            raise ValidationError(
+                'Invalid phone number format. Please enter a valid Kenyan phone number '
+                '(e.g., 0712345678, +254712345678, or 254712345678).'
+            )
         
         return phone
     
