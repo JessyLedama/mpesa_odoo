@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- M-Pesa Main Menu under Accounting -->
+    <menuitem id="menu_mpesa_root"
+              name="M-Pesa"
+              parent="account.menu_finance"
+              sequence="40"/>
+
+    <!-- M-Pesa Transactions Menu -->
+    <menuitem id="menu_mpesa_transactions"
+              name="Transactions"
+              parent="menu_mpesa_root"
+              action="action_mpesa_transaction"
+              sequence="10"/>
+
+    <!-- M-Pesa All Transactions Menu -->
+    <menuitem id="menu_mpesa_transactions_all"
+              name="All Transactions"
+              parent="menu_mpesa_root"
+              action="action_mpesa_transaction_all"
+              sequence="15"/>
+
+    <!-- M-Pesa Configuration Menu -->
+    <menuitem id="menu_mpesa_configuration"
+              name="Configuration"
+              parent="menu_mpesa_root"
+              action="action_mpesa_config"
+              sequence="90"
+              groups="account.group_account_manager"/>
+
+</odoo>
