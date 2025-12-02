@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+        <!-- Default M-Pesa Configuration Template (Sandbox) -->
+        <!-- Users should create their own configuration with real credentials -->
+    </data>
+</odoo>

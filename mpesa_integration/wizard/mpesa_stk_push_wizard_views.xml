@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- STK Push Wizard Form View -->
+    <record id="view_mpesa_stk_push_wizard_form" model="ir.ui.view">
+        <field name="name">mpesa.stk.push.wizard.form</field>
+        <field name="model">mpesa.stk.push.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Send M-Pesa Payment Request">
+                <group>
+                    <group string="Invoice Details" invisible="not invoice_id">
+                        <field name="invoice_id" readonly="1"/>
+                        <field name="partner_id"/>
+                    </group>
+                    <group string="Payment Details">
+                        <field name="phone_number" placeholder="e.g. 0712345678"/>
+                        <field name="amount"/>
+                        <field name="account_reference"/>
+                        <field name="description"/>
+                    </group>
+                </group>
+                <div class="alert alert-info" role="alert">
+                    <strong>Note:</strong> An STK Push will be sent to the customer's phone. 
+                    They will receive a prompt to enter their M-Pesa PIN to complete the payment.
+                </div>
+                <footer>
+                    <button name="action_send_stk_push" 
+                            string="Send Payment Request" 
+                            type="object" 
+                            class="btn-primary"/>
+                    <button string="Cancel" class="btn-secondary" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+    
+    <!-- STK Push Wizard Action -->
+    <record id="action_mpesa_stk_push_wizard" model="ir.actions.act_window">
+        <field name="name">Send M-Pesa Payment Request</field>
+        <field name="res_model">mpesa.stk.push.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+    </record>
+</odoo>
