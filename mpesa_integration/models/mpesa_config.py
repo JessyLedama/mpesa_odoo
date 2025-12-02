@@ -10,6 +10,10 @@ from odoo.exceptions import UserError, ValidationError
 
 _logger = logging.getLogger(__name__)
 
+# M-Pesa API Constants (as per Daraja API documentation)
+MPESA_ACCOUNT_REFERENCE_MAX_LENGTH = 12  # Max chars for AccountReference field
+MPESA_TRANSACTION_DESC_MAX_LENGTH = 13   # Max chars for TransactionDesc field
+
 
 class MpesaConfig(models.Model):
     _name = 'mpesa.config'
@@ -228,8 +232,8 @@ class MpesaConfig(models.Model):
             'PartyB': self.shortcode,
             'PhoneNumber': phone,
             'CallBackURL': self.callback_url,
-            'AccountReference': account_reference[:12] if account_reference else 'Payment',
-            'TransactionDesc': description[:13] if description else 'Payment',
+            'AccountReference': account_reference[:MPESA_ACCOUNT_REFERENCE_MAX_LENGTH] if account_reference else 'Payment',
+            'TransactionDesc': description[:MPESA_TRANSACTION_DESC_MAX_LENGTH] if description else 'Payment',
         }
 
         try:

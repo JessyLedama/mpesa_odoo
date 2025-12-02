@@ -73,6 +73,8 @@ class MpesaTransaction(models.Model):
     raw_response = fields.Text(string='Raw Response')
     callback_data = fields.Text(string='Callback Data')
 
+    # Note: PostgreSQL allows multiple NULLs in unique constraints by default,
+    # so pending transactions (with transaction_id = NULL) won't violate uniqueness
     _sql_constraints = [
         ('transaction_id_unique', 'unique(transaction_id)',
          'M-Pesa Transaction ID must be unique!'),
@@ -428,6 +430,12 @@ class MpesaTransaction(models.Model):
                 result = config.query_stk_status(transaction.checkout_request_id)
                 result_code = str(result.get('ResultCode', ''))
 
+                # M-Pesa STK Push Result Codes:
+                # 0 - Success
+                # 1032 - Request cancelled by user
+                # 1037 - DS timeout (transaction timed out)
+                # 2001 - Wrong PIN entered
+                # 17 - Rule limited (transaction amount limit exceeded)
                 if result_code == '0':
                     transaction.write({
                         'state': 'completed',
@@ -436,9 +444,16 @@ class MpesaTransaction(models.Model):
                     })
                     transaction._auto_reconcile()
                 elif result_code in ['1032', '1037']:
-                    # Cancelled or timeout
+                    # 1032: User cancelled, 1037: DS timeout
                     transaction.write({
                         'state': 'cancelled',
+                        'result_code': result_code,
+                        'result_description': result.get('ResultDesc'),
+                    })
+                elif result_code:
+                    # Any other non-empty code is a failure
+                    transaction.write({
+                        'state': 'failed',
                         'result_code': result_code,
                         'result_description': result.get('ResultDesc'),
                     })

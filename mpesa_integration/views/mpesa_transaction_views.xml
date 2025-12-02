@@ -145,9 +145,9 @@
                 <filter string="C2B" name="c2b" domain="[('transaction_type', '=', 'c2b')]"/>
                 <filter string="STK Push" name="stk_push" domain="[('transaction_type', '=', 'stk_push')]"/>
                 <separator/>
-                <filter string="Today" name="today" domain="[('transaction_time', '>=', context_today().strftime('%Y-%m-%d'))]"/>
-                <filter string="This Week" name="this_week" domain="[('transaction_time', '>=', (context_today() - relativedelta(days=7)).strftime('%Y-%m-%d'))]"/>
-                <filter string="This Month" name="this_month" domain="[('transaction_time', '>=', context_today().strftime('%Y-%m-01'))]"/>
+                <filter string="Today" name="today" domain="[('transaction_time', '&gt;=', context_today().strftime('%Y-%m-%d'))]"/>
+                <filter string="This Week" name="this_week" domain="[('transaction_time', '&gt;=', (context_today() - datetime.timedelta(days=7)).strftime('%Y-%m-%d'))]"/>
+                <filter string="This Month" name="this_month" domain="[('transaction_time', '&gt;=', context_today().strftime('%Y-%m-01'))]"/>
                 <group expand="0" string="Group By">
                     <filter string="Status" name="group_state" context="{'group_by': 'state'}"/>
                     <filter string="Type" name="group_type" context="{'group_by': 'transaction_type'}"/>
