@@ -1,0 +1,6 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_mpesa_config_user,mpesa.config.user,model_mpesa_config,group_mpesa_user,1,0,0,0
+access_mpesa_config_manager,mpesa.config.manager,model_mpesa_config,group_mpesa_manager,1,1,1,1
+access_mpesa_transaction_user,mpesa.transaction.user,model_mpesa_transaction,group_mpesa_user,1,0,0,0
+access_mpesa_transaction_manager,mpesa.transaction.manager,model_mpesa_transaction,group_mpesa_manager,1,1,1,1
+access_mpesa_reconcile_wizard,mpesa.reconcile.wizard,model_mpesa_reconcile_wizard,group_mpesa_manager,1,1,1,1
