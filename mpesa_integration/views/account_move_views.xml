@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Extend Invoice Form View to add M-Pesa buttons -->
+    <record id="view_move_form_inherit_mpesa" model="ir.ui.view">
+        <field name="name">account.move.form.inherit.mpesa</field>
+        <field name="model">account.move</field>
+        <field name="inherit_id" ref="account.view_move_form"/>
+        <field name="arch" type="xml">
+            <!-- Add M-Pesa button in the button box -->
+            <xpath expr="//div[@name='button_box']" position="inside">
+                <button class="oe_stat_button" type="object" 
+                        name="action_view_mpesa_transactions" 
+                        icon="fa-mobile"
+                        invisible="mpesa_transaction_count == 0">
+                    <field name="mpesa_transaction_count" widget="statinfo" string="M-Pesa"/>
+                </button>
+            </xpath>
+            
+            <!-- Add Send M-Pesa Request button in header -->
+            <xpath expr="//header" position="inside">
+                <button name="action_send_mpesa_stk_push" 
+                        string="Request M-Pesa Payment" 
+                        type="object" 
+                        class="btn-secondary"
+                        icon="fa-mobile"
+                        invisible="move_type != 'out_invoice' or state != 'posted' or payment_state == 'paid'"/>
+            </xpath>
+        </field>
+    </record>
+    
+    <!-- Add M-Pesa transactions field to invoice (hidden, for computation) -->
+    <record id="view_move_form_inherit_mpesa_fields" model="ir.ui.view">
+        <field name="name">account.move.form.inherit.mpesa.fields</field>
+        <field name="model">account.move</field>
+        <field name="inherit_id" ref="account.view_move_form"/>
+        <field name="priority">100</field>
+        <field name="arch" type="xml">
+            <xpath expr="//sheet" position="after">
+                <field name="mpesa_transaction_ids" invisible="1"/>
+            </xpath>
+        </field>
+    </record>
+</odoo>

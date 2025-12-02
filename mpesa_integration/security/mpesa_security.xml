@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- M-Pesa Manager Group -->
+    <record id="group_mpesa_manager" model="res.groups">
+        <field name="name">M-Pesa Manager</field>
+        <field name="category_id" ref="base.module_category_accounting_accounting"/>
+        <field name="implied_ids" eval="[(4, ref('account.group_account_user'))]"/>
+        <field name="comment">Users with this role can manage M-Pesa configurations and view all transactions.</field>
+    </record>
+    
+    <!-- M-Pesa User Group -->
+    <record id="group_mpesa_user" model="res.groups">
+        <field name="name">M-Pesa User</field>
+        <field name="category_id" ref="base.module_category_accounting_accounting"/>
+        <field name="implied_ids" eval="[(4, ref('account.group_account_user'))]"/>
+        <field name="comment">Users with this role can initiate M-Pesa transactions and view their own transactions.</field>
+    </record>
+    
+    <!-- Record Rules -->
+    <record id="mpesa_config_company_rule" model="ir.rule">
+        <field name="name">M-Pesa Config: multi-company</field>
+        <field name="model_id" ref="model_mpesa_config"/>
+        <field name="domain_force">['|', ('company_id', '=', False), ('company_id', 'in', company_ids)]</field>
+    </record>
+    
+    <record id="mpesa_transaction_company_rule" model="ir.rule">
+        <field name="name">M-Pesa Transaction: multi-company</field>
+        <field name="model_id" ref="model_mpesa_transaction"/>
+        <field name="domain_force">['|', ('company_id', '=', False), ('company_id', 'in', company_ids)]</field>
+    </record>
+</odoo>

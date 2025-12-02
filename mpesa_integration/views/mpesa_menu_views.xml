@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- M-Pesa Main Menu under Accounting -->
+    <menuitem id="menu_mpesa_root"
+              name="M-Pesa"
+              parent="account.menu_finance"
+              sequence="50"
+              groups="group_mpesa_user,group_mpesa_manager"/>
+    
+    <!-- M-Pesa Transactions Menu -->
+    <menuitem id="menu_mpesa_transactions"
+              name="Transactions"
+              parent="menu_mpesa_root"
+              action="action_mpesa_transaction"
+              sequence="10"/>
+    
+    <!-- M-Pesa Completed Transactions -->
+    <menuitem id="menu_mpesa_transactions_completed"
+              name="Completed"
+              parent="menu_mpesa_transactions"
+              action="action_mpesa_transaction_completed"
+              sequence="10"/>
+    
+    <!-- M-Pesa Pending Transactions -->
+    <menuitem id="menu_mpesa_transactions_pending"
+              name="Pending"
+              parent="menu_mpesa_transactions"
+              action="action_mpesa_transaction_pending"
+              sequence="20"/>
+    
+    <!-- M-Pesa Configuration Menu -->
+    <menuitem id="menu_mpesa_configuration"
+              name="Configuration"
+              parent="menu_mpesa_root"
+              action="action_mpesa_config"
+              sequence="100"
+              groups="group_mpesa_manager"/>
+</odoo>

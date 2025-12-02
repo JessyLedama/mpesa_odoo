@@ -1,0 +1,163 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- M-Pesa Configuration Form View -->
+    <record id="view_mpesa_config_form" model="ir.ui.view">
+        <field name="name">mpesa.config.form</field>
+        <field name="model">mpesa.config</field>
+        <field name="arch" type="xml">
+            <form string="M-Pesa Configuration">
+                <header>
+                    <button name="action_test_connection" 
+                            string="Test Connection" 
+                            type="object" 
+                            class="btn-primary"
+                            icon="fa-plug"/>
+                    <button name="register_c2b_urls" 
+                            string="Register C2B URLs" 
+                            type="object" 
+                            class="btn-secondary"
+                            icon="fa-link"
+                            invisible="not validation_url or not confirmation_url"/>
+                </header>
+                <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <button class="oe_stat_button" type="object" 
+                                name="action_test_connection" icon="fa-check-circle">
+                            <span>Test Connection</span>
+                        </button>
+                    </div>
+                    <widget name="web_ribbon" title="Archived" bg_color="text-bg-danger" invisible="active"/>
+                    <div class="oe_title">
+                        <label for="name"/>
+                        <h1>
+                            <field name="name" placeholder="e.g. Main M-Pesa Account"/>
+                        </h1>
+                    </div>
+                    <group>
+                        <group string="Company">
+                            <field name="company_id" groups="base.group_multi_company"/>
+                            <field name="active" invisible="1"/>
+                        </group>
+                        <group string="Environment">
+                            <field name="environment" widget="radio"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="API Credentials" name="credentials">
+                            <group>
+                                <group string="Daraja API Keys">
+                                    <field name="consumer_key" password="True"/>
+                                    <field name="consumer_secret" password="True"/>
+                                </group>
+                                <group string="Business Details">
+                                    <field name="shortcode"/>
+                                    <field name="passkey" password="True"/>
+                                    <field name="business_type" widget="radio"/>
+                                </group>
+                            </group>
+                        </page>
+                        <page string="Callback URLs" name="callbacks">
+                            <group>
+                                <group string="STK Push Callback">
+                                    <field name="callback_url" widget="url" placeholder="https://yourdomain.com/mpesa/callback/stk"/>
+                                </group>
+                                <group string="C2B Callbacks">
+                                    <field name="validation_url" widget="url" placeholder="https://yourdomain.com/mpesa/callback/c2b/validation"/>
+                                    <field name="confirmation_url" widget="url" placeholder="https://yourdomain.com/mpesa/callback/c2b/confirmation"/>
+                                    <field name="c2b_registered" readonly="1"/>
+                                </group>
+                            </group>
+                            <div class="alert alert-info" role="alert">
+                                <strong>Note:</strong> Callback URLs must be publicly accessible HTTPS endpoints.
+                                <br/>
+                                <strong>STK Callback:</strong> <code>/mpesa/callback/stk</code>
+                                <br/>
+                                <strong>C2B Validation:</strong> <code>/mpesa/callback/c2b/validation</code>
+                                <br/>
+                                <strong>C2B Confirmation:</strong> <code>/mpesa/callback/c2b/confirmation</code>
+                            </div>
+                        </page>
+                        <page string="Payment Settings" name="payment">
+                            <group>
+                                <group string="Default Payment Journal">
+                                    <field name="journal_id"/>
+                                </group>
+                            </group>
+                        </page>
+                        <page string="API URLs (Auto-generated)" name="urls">
+                            <group>
+                                <group>
+                                    <field name="base_url" readonly="1"/>
+                                    <field name="auth_url" readonly="1" widget="url"/>
+                                    <field name="stk_push_url" readonly="1" widget="url"/>
+                                    <field name="stk_query_url" readonly="1" widget="url"/>
+                                    <field name="c2b_register_url" readonly="1" widget="url"/>
+                                </group>
+                            </group>
+                        </page>
+                        <page string="Token Info" name="token" groups="base.group_no_one">
+                            <group>
+                                <field name="access_token" readonly="1"/>
+                                <field name="token_expiry" readonly="1"/>
+                            </group>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+    
+    <!-- M-Pesa Configuration Tree View -->
+    <record id="view_mpesa_config_tree" model="ir.ui.view">
+        <field name="name">mpesa.config.tree</field>
+        <field name="model">mpesa.config</field>
+        <field name="arch" type="xml">
+            <tree string="M-Pesa Configurations">
+                <field name="name"/>
+                <field name="shortcode"/>
+                <field name="business_type"/>
+                <field name="environment" decoration-success="environment == 'sandbox'" decoration-danger="environment == 'production'" widget="badge"/>
+                <field name="company_id" groups="base.group_multi_company"/>
+                <field name="active" column_invisible="1"/>
+            </tree>
+        </field>
+    </record>
+    
+    <!-- M-Pesa Configuration Search View -->
+    <record id="view_mpesa_config_search" model="ir.ui.view">
+        <field name="name">mpesa.config.search</field>
+        <field name="model">mpesa.config</field>
+        <field name="arch" type="xml">
+            <search string="Search M-Pesa Configuration">
+                <field name="name"/>
+                <field name="shortcode"/>
+                <filter string="Active" name="active" domain="[('active', '=', True)]"/>
+                <filter string="Archived" name="archived" domain="[('active', '=', False)]"/>
+                <separator/>
+                <filter string="Sandbox" name="sandbox" domain="[('environment', '=', 'sandbox')]"/>
+                <filter string="Production" name="production" domain="[('environment', '=', 'production')]"/>
+                <group expand="0" string="Group By">
+                    <filter string="Environment" name="group_environment" context="{'group_by': 'environment'}"/>
+                    <filter string="Company" name="group_company" context="{'group_by': 'company_id'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+    
+    <!-- M-Pesa Configuration Action -->
+    <record id="action_mpesa_config" model="ir.actions.act_window">
+        <field name="name">M-Pesa Configuration</field>
+        <field name="res_model">mpesa.config</field>
+        <field name="view_mode">tree,form</field>
+        <field name="search_view_id" ref="view_mpesa_config_search"/>
+        <field name="context">{'search_default_active': 1}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Create your first M-Pesa configuration
+            </p>
+            <p>
+                Configure your M-Pesa Daraja API credentials to start accepting payments.
+            </p>
+        </field>
+    </record>
+</odoo>
